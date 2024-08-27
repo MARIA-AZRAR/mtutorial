@@ -33,7 +33,7 @@ from django.contrib import admin
 
 urlpatterns = [
     path('', include('snippets.urls')),
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
 

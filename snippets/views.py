@@ -6,14 +6,17 @@
 # from rest_framework import status
 # from django.http import Http404
 # from rest_framework.views import APIView
-# from rest_framework.response import Response
 # from rest_framework import mixins
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from .serializers import SnippetSerializer, UserSerializer
 from .models import Snippet
 from rest_framework import generics
 from django.contrib.auth.models import User
 from rest_framework import permissions
 from .permissions import IsOwnerPermission
+from rest_framework.decorators import api_view
+from rest_framework import renderers
 
 
 class SnippetListView(generics.ListCreateAPIView):
@@ -40,6 +43,21 @@ class UserListView(generics.ListAPIView):
 class UserDetailView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'users' : reverse('user-list', request=request, format=format),
+        'snippets' : reverse('snippet-list', request=request, format=format)
+    })
+    
+class SnippetHighlight(generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    renderer_classes = [renderers.StaticHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlight)
     
 # Using mixins
 # class SnippetListView(mixins.CreateModelMixin, mixins.ListModelMixin, generics.GenericAPIView):
