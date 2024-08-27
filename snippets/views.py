@@ -8,18 +8,37 @@
 # from rest_framework.views import APIView
 # from rest_framework.response import Response
 # from rest_framework import mixins
-from .serializers import SnippetSerializer
+from .serializers import SnippetSerializer, UserSerializer
 from .models import Snippet
 from rest_framework import generics
+from django.contrib.auth.models import User
+from rest_framework import permissions
+
 
 class SnippetListView(generics.ListCreateAPIView):
     
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class SnippetDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class UserListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
     
 # Using mixins
 # class SnippetListView(mixins.CreateModelMixin, mixins.ListModelMixin, generics.GenericAPIView):
